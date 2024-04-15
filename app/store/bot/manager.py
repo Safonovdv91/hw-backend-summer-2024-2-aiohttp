@@ -1,7 +1,6 @@
 import typing
 
-from app.store.vk_api.accessor import VkApiAccessor
-from app.store.vk_api.dataclasses import Update, Message
+from app.store.vk_api.dataclasses import Message
 
 if typing.TYPE_CHECKING:
     from app.web.app import Application
