@@ -1,5 +1,5 @@
 import base64
-
+import hashlib
 
 from aiohttp.web import (
     Application as AiohttpApplication,
@@ -9,7 +9,7 @@ from aiohttp.web import (
 from aiohttp_apispec import setup_aiohttp_apispec
 from aiohttp_session import setup as session_setup
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
-
+from cryptography.fernet import Fernet
 
 from app.admin.models import Admin
 from app.store import Store, setup_store
@@ -55,10 +55,12 @@ def setup_app(config_path: str) -> Application:
     setup_logging(app)
     setup_config(app, config_path)
     setup_routes(app)
-    secret_key = base64.urlsafe_b64encode("Thirty  two  length  byt".encode('utf-8'))
-    # aiohttp_session.setup(app, storage=EncryptedCookieStorage(secret_key))
+    string_bytes = app.config.session.key.encode('utf-8')
+    hasher = hashlib.sha256()
+    hasher.update(string_bytes)
+    key_bytes = hasher.digest()
     session_setup(app, storage=EncryptedCookieStorage(
-        secret_key=secret_key))
+        secret_key=key_bytes))
     setup_middlewares(app)
     setup_store(app)
     setup_aiohttp_apispec(app, title="Our application", url="/docs/json", swagger_path="/docs")
